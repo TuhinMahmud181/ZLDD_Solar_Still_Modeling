@@ -239,7 +239,7 @@ FC.plotstage = 1;         % [-] stage index for the per-stage diagnostic plots
 % TRUE here because a baseline run should always be auditable. Batch callers such
 % as zldd_OAT override it to false; 80 verbose reports are unreadable, and the
 % audit is not what a sweep is looking at.
-FC.verbose = true;
+FC.verbose = false;
 
 % ---- PVGIS plane-of-array irradiance. SLOPE MUST MATCH FC.beta ----------
 % Same site as the ambient block above. Site, glazing tilt and this query form ONE
