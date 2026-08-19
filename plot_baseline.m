@@ -1,8 +1,15 @@
-function plot_baseline(results, outdir)
+function h = plot_baseline(results, varargin)
 %PLOT_BASELINE  Generate the four Results-section figures from a solved case.
 %
-%   plot_baseline(results)            -> figures on screen
-%   plot_baseline(results, 'figs')    -> also writes 600-dpi TIFF + .fig
+%   h = plot_baseline(results)                  -> figures on screen only
+%   plot_baseline(results, 'export', 'svg')     -> also writes vector SVG
+%   plot_baseline(results, 'export', 'tiff')    -> also writes 600-dpi TIFF
+%   plot_baseline(results, 'export', 'svg', 'outdir', 'figs')
+%
+%   Display and export are separate steps, as in Sensitivity: the figures
+%   are always drawn, and nothing is written to disk unless an export format
+%   is named. The returned handle vector h can be passed to any external
+%   export helper, so a call such as Sensitivity('export','svg',h) works.
 %
 %   All data are taken directly from the results structure returned by
 %   Full_Report2_fixed. Nothing is hard-coded, so the figures regenerate
@@ -19,11 +26,17 @@ function plot_baseline(results, outdir)
 %     where a reader expects them.
 %
 %   EXPORT
-%     Figures are written with PRINT after the paper properties are locked
-%     to the on-screen figure size in centimetres. This preserves the
-%     authored aspect ratio and margins exactly. EXPORTGRAPHICS is not used
-%     because it tight-crops to the drawn content, so the saved aspect ratio
-%     is set by the bounding box rather than by the requested figure size.
+%     TIFF is written with PRINT after the paper properties are locked to the
+%     on-screen figure size in centimetres. This preserves the authored aspect
+%     ratio and margins exactly. EXPORTGRAPHICS is not used for the raster
+%     path because it tight-crops to the drawn content, so the saved aspect
+%     ratio is set by the bounding box rather than by the requested size.
+%
+%     SVG is written through the same locked-paper path. The vector renderer
+%     cannot express per-object alpha, so no drawn object in this file uses
+%     FaceAlpha: bar faces are given pre-blended light colours that match
+%     what alpha over a white background would have produced. Keep it that
+%     way, or the vector output will silently differ from the screen figure.
 %
 %   Array conventions used below:
 %     results.t                 nT x 1     [s]
@@ -35,8 +48,15 @@ function plot_baseline(results, outdir)
 %     results.mfw               nT x 1     [kg/s total]
 %     results.cum_distillate    nT x 1     [kg]
 
-if nargin < 2, outdir = ''; end
-if ~isempty(outdir) && ~exist(outdir,'dir'), mkdir(outdir); end
+% ---- options ---------------------------------------------------------
+opt = struct('export','', 'outdir','figs', 'dpi',600, 'savefig',false);
+for a = 1:2:numel(varargin)
+    name = validatestring(varargin{a}, fieldnames(opt));
+    opt.(name) = varargin{a+1};
+end
+if ~isempty(opt.export)
+    opt.export = validatestring(opt.export, {'svg','tiff'});
+end
 
 t_start_hour = 8;    % [h, 24-clock] clock time at t = 0 (results.t(1) = 8:00 AM)
 
@@ -99,6 +119,11 @@ cleanupDefaults = onCleanup(@() set(0, ...
 co = lines(7);
 MS = 3.5;        % marker size, reduced to suit the smaller type
 
+% Pre-blend a colour toward white in place of FaceAlpha. Alpha is a renderer
+% effect the vector path cannot reproduce; a blended colour is an ordinary
+% solid fill, so screen and SVG agree.
+blend = @(c,a) 1 - a*(1 - c);
+
 %% ===================== FIGURE 1: cascade profiles =====================
 f1 = figure('Name','Fig1 cascade profiles','Color','w', ...
             'Units','centimeters','Position',[2 2 FIG_W FIG_H]);
@@ -151,7 +176,7 @@ ax.XTickLabelRotation = 0;
 % (d) evaporation vs irradiance  -- THE KEY PANEL
 ax = nexttile; hold on; grid on; box on
 yyaxis left
-bar(k, mev,0.6,'FaceColor',co(1,:),'FaceAlpha',0.5,'EdgeColor','none');
+bar(k, mev,0.6,'FaceColor',blend(co(1,:),0.5),'EdgeColor','none');
 ylabel('m_{evap} [g s^{-1}]','FontSize',FS_lbl);
 yyaxis right
 plot(k, Ilay,'-o','MarkerSize',MS,'MarkerFaceColor','w');
@@ -288,7 +313,7 @@ ax.XTickLabelRotation = 0;
 
 % (b) within-stage concentration ratio -- one curve, the actual message
 ax = nexttile; hold on; grid on; box on
-bar(k, ratio_k, 0.6,'FaceColor',co(4,:),'FaceAlpha',0.6,'EdgeColor','none', ...
+bar(k, ratio_k, 0.6,'FaceColor',blend(co(4,:),0.6),'EdgeColor','none', ...
     'BaseValue',1);                       % bars grow from unity, not zero
 yline(1,'k-','HandleVisibility','off');
 xlabel('Stage index, k','FontSize',FS_lbl);
@@ -322,29 +347,35 @@ print_caption_stats(struct( ...
     'ratio_term',  ratio_k(end)));
 
 %% ---------------------------- export --------------------------------
-if ~isempty(outdir)
-    figs = [f1 f2 f3 f4];
-    for j = 1:numel(figs)
-        base = fullfile(outdir, sprintf('Fig%d',j));
-        save_fixed_size(figs(j), base, 600);
-        savefig(figs(j), [base '.fig']);
+h = [f1 f2 f3 f4];
+
+if ~isempty(opt.export)
+    if ~exist(opt.outdir,'dir'), mkdir(opt.outdir); end
+    for j = 1:numel(h)
+        base = fullfile(opt.outdir, sprintf('Fig%d',j));
+        save_fixed_size(h(j), base, opt.export, opt.dpi);
+        if opt.savefig, savefig(h(j), [base '.fig']); end
     end
-    fprintf('Figures written to %s\n', outdir);
+    fprintf('Figures written to %s as %s\n', opt.outdir, upper(opt.export));
 end
+
+if nargout == 0, clear h; end
 end
 
 % ---------------------------------------------------------------------
-function save_fixed_size(fh, base, dpi)
-% Write a raster TIFF whose physical size equals the figure's on-screen size
-% in centimetres, at the requested dpi. The paper size is set equal to the
-% paper position so there is no letter-paper margin and no rescaling, which
-% is what keeps the authored aspect ratio intact.
+function save_fixed_size(fh, base, fmt, dpi)
+% Write a file whose physical size equals the figure's on-screen size in
+% centimetres. The paper size is set equal to the paper position so there is
+% no letter-paper margin and no rescaling, which is what keeps the authored
+% aspect ratio intact. The same locked-paper setup serves both formats, so a
+% TIFF and an SVG of the same figure occupy identical space on the page.
 %
 % InvertHardcopy is disabled so the figure's own white background and axis
 % colours are printed as laid out rather than being recoloured on print.
-% The '-image' switch forces the raster path, which is required because
-% several panels use FaceAlpha on bar objects; the vector path either drops
-% that transparency or rasterizes only part of the axes.
+%
+% For TIFF the '-image' switch forces the raster path. For SVG the renderer
+% is inherently vector; this is safe here only because no object in this file
+% carries per-object alpha, which the vector path cannot express.
 
 old = get(fh, {'Units','PaperUnits','PaperPositionMode', ...
                'PaperPosition','PaperSize','InvertHardcopy','Color'});
@@ -363,7 +394,12 @@ fh.Color             = 'w';
 % band along one edge of the file.
 drawnow expose
 
-print(fh, [base '.tif'], '-dtiff', '-image', sprintf('-r%d', dpi));
+switch fmt
+    case 'svg'
+        print(fh, [base '.svg'], '-dsvg');
+    case 'tiff'
+        print(fh, [base '.tif'], '-dtiff', '-image', sprintf('-r%d', dpi));
+end
 
 set(fh, {'Units','PaperUnits','PaperPositionMode', ...
          'PaperPosition','PaperSize','InvertHardcopy','Color'}, old);
