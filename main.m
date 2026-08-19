@@ -25,8 +25,9 @@ clc; clear; close all
 %  is not called again here.
 
 FC      = Baseline_Input_Variable();
-results = ZLDD_complete_modeling(FC);
-
+%   results = ZLDD_complete_modeling(FC);
+%  h = plot_baseline(results);                    % display only
+%  Sensitivity('export', 'svg', h);               % every open figure -> vector
 %% ---- Parametric sweep ---------------------------------------------------
 %  Sensitivity is a FUNCTION; call it from the Command Window. The sweep
 %  overrides the grid to Nx = 20 for run economy, so its results are read
