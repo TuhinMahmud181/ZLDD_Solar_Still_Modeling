@@ -83,3 +83,4 @@ patent and the accompanying manuscript (details to follow on publication).
 ## Contact
 
 Tuhin Mahmud — Department of Chemical Engineering, BUET.
+Email:tuhinmahmud@gmail.com
