@@ -44,6 +44,8 @@ Baseline solve on the Nx = 40 grid verified by the GCI study:
 ```matlab
 FC      = Baseline_Input_Variable();
 results = ZLDD_complete_modeling(FC);
+h = plot_baseline(results);                    % display only
+Sensitivity('export', 'svg', h);               % svg format save
 ```
 
 The model draws the Results-section figures itself when `FC.quiet` is false.
