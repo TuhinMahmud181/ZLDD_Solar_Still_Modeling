@@ -248,7 +248,7 @@ if ~P.quiet
     end
 
     plot_performance(results);
-    plot_baseline(results, 'figs');   % writes the figure set to ./figs/
+    plot_baseline(results);  
 end
 
 results.runtime_total_s = toc(t_start);
