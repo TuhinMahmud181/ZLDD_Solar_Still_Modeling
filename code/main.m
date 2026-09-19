@@ -1,3 +1,4 @@
+addpath(genpath(fileparts(fileparts(mfilename('fullpath')))));
 %==========================================================================
 %  ZLDD CASCADE -- DRIVER
 %
