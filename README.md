@@ -81,8 +81,11 @@ Research code supporting a manuscript in preparation. Interfaces may change.
 
 The underlying system is covered by US Patent 12,115,465 B1. If you use this code, please cite the
 patent and the accompanying manuscript (details to follow on publication).
+Link: https://patents.google.com/patent/US12115465B1/en
 
 ## Contact
 
-Tuhin Mahmud — Department of Chemical Engineering, BUET.
-Email:tuhinmahmud@gmail.com
+Tuhin Mahmud
+Department of Chemical Engineering, BUET
+Email:1024022108 
+
