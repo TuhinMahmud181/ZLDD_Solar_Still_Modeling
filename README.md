@@ -91,7 +91,7 @@ Link: https://patents.google.com/patent/US12115465B1/en
   Email: 1024022108@che.buet.ac.bd
 
 - **Dr. Mohidus Samad Khan**, Professor<br>
-  Department of Chemical Engineering, BUET, Dhaka, Bangladesh<br>
+  Department of Chemical Engineering, Bangladesh University of Engineering and Technology (BUET), Dhaka, Bangladesh<br>
   Email: mohid@che.buet.ac.bd
 
 - **Dr. Sayeed Rushd**, Associate Professor<br>
