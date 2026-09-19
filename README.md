@@ -87,5 +87,6 @@ Link: https://patents.google.com/patent/US12115465B1/en
 
 Tuhin Mahmud
 Department of Chemical Engineering, BUET
-Email:1024022108 
+Email:1024022108@che.buet.ac.bd
+
 
