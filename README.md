@@ -20,24 +20,33 @@ consumption (SEC). Local (OAT) and global (Morris) sensitivity harnesses are inc
 
 MATLAB R2021b or newer. Base MATLAB only.
 
-## Files
+## Repository structure
 
-| File | Purpose |
+| Path | Purpose |
 |---|---|
-| `main.m` | Driver. Run the code from here; it declares run controls only. |
-| `Baseline_Input_Variable.m` | Design case, single point of declaration for all inputs |
-| `ZLDD_complete_modeling.m` | The model |
-| `plot_baseline.m` | Results-section figures |
-| `Sensitivity.m` | Local (OAT) sensitivity sweep and its post-processing |
-| `Morris_Global.m` | Global (Morris) screening |
-| `pvgis_irradiance_data.m` | Plane-of-array irradiance series |
-| `OAT.mat` | Stored results of the full OAT sweep |
-| `Global.mat` | Stored Morris screening results, r = 20 trajectories |
+| `code/main.m` | Driver. Run the code from here; it declares run controls only. |
+| `code/Baseline_Input_Variable.m` | Design case, single point of declaration for all inputs |
+| `code/ZLDD_complete_modeling.m` | The model |
+| `code/plot_baseline.m` | Results-section figures |
+| `code/Sensitivity.m` | Local (OAT) sensitivity sweep and its post-processing |
+| `code/Morris_Global.m` | Global (Morris) screening |
+| `code/pvgis_irradiance_data.m` | Plane-of-array irradiance series |
+| `data/OAT.mat` | Stored results of the full OAT sweep |
+| `data/Global.mat` | Stored Morris screening results, r = 20 trajectories |
+| `appendices/` | Supplementary document for the manuscript |
 
-The two `.mat` files are both results and checkpoints: `load` them to reproduce the figures without
-re-solving, or leave them in place and the harnesses will resume from where they stopped.
+The two `.mat` files in `data/` are both results and checkpoints: `load` them to reproduce the
+figures without re-solving, or leave them in place and the harnesses will resume from where they
+stopped.
 
 ## Usage
+
+Running `code/main.m` adds all repository folders to the MATLAB path. To use the functions directly
+from the Command Window instead, first run this from the repository root folder:
+
+```matlab
+addpath(genpath(pwd));
+```
 
 Baseline solve on the Nx = 40 grid verified by the GCI study:
 
@@ -97,4 +106,3 @@ Link: https://patents.google.com/patent/US12115465B1/en
 - **Dr. Sayeed Rushd**, Associate Professor<br>
   Department of Chemical Engineering, King Faisal University, Al-Ahsa, Saudi Arabia<br>
   Email: mrushd@kfu.edu.sa
-
