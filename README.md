@@ -86,7 +86,7 @@ Link: https://patents.google.com/patent/US12115465B1/en
 
 ## Contact
 
-**Tuhin Mahmud**
+-**Tuhin Mahmud**
 MSc Student, Department of Chemical Engineering,
 Bangladesh University of Engineering and Technology (BUET), Dhaka, Bangladesh
 Email: 1024022108@che.buet.ac.bd
