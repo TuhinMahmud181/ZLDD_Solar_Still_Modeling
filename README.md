@@ -91,8 +91,6 @@ MSc Student, Department of Chemical Engineering,
 Bangladesh University of Engineering and Technology (BUET), Dhaka, Bangladesh
 Email: 1024022108@che.buet.ac.bd
 
-**Supervisors**
-
 - **Dr. Mohidus Samad Khan**, Professor
   Department of Chemical Engineering, BUET, Dhaka, Bangladesh
   Email: mohid@che.buet.ac.bd
