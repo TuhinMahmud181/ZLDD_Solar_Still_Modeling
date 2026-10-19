@@ -1,0 +1,16 @@
+quantity,value,unit,note
+air flow drawn in at the bottom,0.271529,kg/s,per 1.0 m depth; target 0.27152868034247585
+mass imbalance,1.66871e-05,%,should be < 0.1
+largest slot flow difference from the fan flow,0.000156065,%,should be < 0.5
+suction the fan must provide,775.604,Pa,static pressure air_inlet - fan_outlet; the still runs below ambient pressure
+fan air power,190.176,W,pressure rise x volume flow (no fan efficiency)
+slot 10: pressure,-88.2274,Pa,
+slot 9: pressure,-157.086,Pa,
+slot 8: pressure,-226.997,Pa,
+slot 7: pressure,-296.979,Pa,
+slot 6: pressure,-366.832,Pa,
+slot 5: pressure,-436.721,Pa,
+slot 4: pressure,-506.589,Pa,
+slot 3: pressure,-576.532,Pa,
+slot 2: pressure,-646.345,Pa,
+slot 1: pressure,-719.433,Pa,

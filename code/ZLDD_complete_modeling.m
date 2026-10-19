@@ -266,6 +266,16 @@ P.theta        = deg2rad(FC.theta);    % [rad] plate tilt angle from horizontal 
 P.beta         = deg2rad(FC.beta);     % [rad] glass cover tilt angle from horizontal 
 P.Nx           = FC.Nx;                % [-] number of streamwise discretization nodes per plate 
 P.Np           = FC.Np;                % [-] number of REAL absorber-plate stages
+if isfield(FC,'gap_coeff_scale') && ~isempty(FC.gap_coeff_scale)   % optional closure test, see film_gap_coeffs
+    P.gap_coeff_scale = FC.gap_coeff_scale(:);
+    assert(numel(P.gap_coeff_scale) == FC.Np + 1, 'FC.gap_coeff_scale needs Np+1 values (one per gap).');
+end
+% Preferred form: three factors [top gap, plate gaps 2..Np, floor gap]; the vector is
+% built for the current Np, so sweeps that change Np stay consistent.
+if isfield(FC,'gap_factor') && ~isempty(FC.gap_factor)
+    assert(numel(FC.gap_factor) == 3, 'FC.gap_factor needs 3 values: [top gap, plate gaps, floor gap].');
+    P.gap_coeff_scale = [FC.gap_factor(1); FC.gap_factor(2)*ones(FC.Np-1,1); FC.gap_factor(3)];
+end
 P.Ns           = P.Np + 1;             % [-] TOTAL film-bearing stages including the floor (stage Ns = the floor,
                                         %     modeled as a film-bearing plate with its own optical/thermal/
                                         %     geometric properties).
@@ -3137,6 +3147,15 @@ Nu =  nusselt_gap(Re, Pr_a, Tv_k, Tw_k, P, k);   % 1 x Nx
 
 hc_wv = Nu .* k_a ./ Dh_local;                        % 1 x Nx, evaluated node by node
 hm_wv = hc_wv ./ (rho_a * Cp_a) * P.Le^(-2/3);        % 1 x Nx
+
+% ---- OPTIONAL closure test (inactive unless FC.gap_coeff_scale is given) ----
+% Multiplies the gap heat and mass transfer coefficients of gap k by a fixed
+% factor, e.g. the ratio found by the Fluent comparison. One factor per gap
+% (Ns values: gap 1 under the glass ... gap Ns over the floor).
+if isfield(P,'gap_coeff_scale') && ~isempty(P.gap_coeff_scale)
+    hc_wv = hc_wv * P.gap_coeff_scale(k);
+    hm_wv = hm_wv * P.gap_coeff_scale(k);
+end
 end % film_gap_coeffs
 
 

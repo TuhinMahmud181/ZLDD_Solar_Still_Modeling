@@ -1,8 +1,9 @@
 # ZLDD Cascade Solar Still — MATLAB Model
 
 Transient multi-physics model of a zero-liquid-discharge desalination (ZLDD) system built around a
-multi-plate cascade solar still coupled to an atmospheric water generator and an air-to-air
-recuperator. The model solves the coupled film, humid-air, glass-cover and absorber-plate balances
+multi-plate cascade solar still coupled to a dehumidification/condensation unit (the atmospheric
+water generator, AWG, of the patented design) and an air-to-air recuperator. The model solves the
+coupled film, humid-air, glass-cover and absorber-plate balances
 as a stiff system with `ode15s` and reports distillate yield, cascade recovery and specific energy
 consumption (SEC). Local (OAT) and global (Morris) sensitivity harnesses are included.
 
@@ -11,10 +12,13 @@ consumption (SEC). Local (OAT) and global (Morris) sensitivity harnesses are inc
 - Falling-film mass, energy and momentum balances on each cascade plate
 - Humid-air transport in the inter-plate vapour gaps, with tapered gap geometry
 - Glass cover, absorber plate, floor and side-wall energy balances
-- Three-surface radiosity exchange per gap, with view factors by Gauss–Legendre quadrature
+- Three-surface radiosity exchange per gap, with tapered-gap view factors from Hottel's flat-plate
+  result and a crossed-strings correction
 - Axial wall conduction between gap segments
-- Segmented-duct fan pressure drop, AWG condenser coil and air-to-air recuperator
+- Segmented-duct fan pressure drop, dehumidification/condensation coil and air-to-air recuperator
 - Closed-loop air circulation with salt mass-balance closure
+- Optional entrance and turn factors on the gap heat- and mass-transfer coefficients
+  (`FC.gap_factor`), used only for the CFD comparison case
 
 ## Requirements
 
@@ -26,6 +30,7 @@ MATLAB R2021b or newer. Base MATLAB only.
 |---|---|
 | `code/main.m` | Driver. Run the code from here; it declares run controls only. |
 | `code/Baseline_Input_Variable.m` | Design case, single point of declaration for all inputs |
+| `code/CFD_Comparison_Input_Variable.m` | Input set of the CFD comparison case (Section 6 of the article) |
 | `code/ZLDD_complete_modeling.m` | The model |
 | `code/plot_baseline.m` | Results-section figures |
 | `code/Sensitivity.m` | Local (OAT) sensitivity sweep and its post-processing |
@@ -33,6 +38,8 @@ MATLAB R2021b or newer. Base MATLAB only.
 | `code/pvgis_irradiance_data.m` | Plane-of-array irradiance series |
 | `data/OAT.mat` | Stored results of the full OAT sweep |
 | `data/Global.mat` | Stored Morris screening results, r = 20 trajectories |
+| `cfd/still2d_day_results.csv` | ANSYS Fluent model, comparison case: results over the operating window |
+| `cfd/still2d_flow_results.csv` | ANSYS Fluent model, comparison case: air-flow solution (mass balance, stack pressure drop, fan air power) |
 | `appendices/` | Supplementary document for the manuscript |
 
 The two `.mat` files in `data/` are both results and checkpoints: `load` them to reproduce the
@@ -59,6 +66,16 @@ Sensitivity('export', 'svg', h);               % svg format save
 
 The model draws the Results-section figures itself when `FC.quiet` is false.
 
+CFD comparison case (Section 6 of the article). Same design case with a feed of 115 L per operating
+window and entrance and turn factors on the gap transfer coefficients; the baseline input carries no
+factors, so every result in Sections 4 and 5 uses the correlation unchanged. The Fluent results for
+the same case are in `cfd/`.
+
+```matlab
+FC      = CFD_Comparison_Input_Variable();  % FC.gap_factor = [5.6 1.7 1.2]
+results = ZLDD_complete_modeling(FC);
+```
+
 OAT sweep. The sweep overrides the grid to Nx = 20 for run economy, so its results are read
 relative to run 1 and are not directly comparable with the baseline figures.
 
@@ -84,7 +101,7 @@ interrupted run can be restarted without losing completed samples.
 
 ## Status
 
-Research code supporting a manuscript in preparation. Interfaces may change.
+Research code supporting a manuscript under review. Interfaces may change.
 
 ## Citation
 
